@@ -1,0 +1,2 @@
+D:\github\KinesisSampleApp\KinesisSampleApp\bin\Debug\KinesisSampleApp.exe.config
+D:\github\KinesisSampleApp\KinesisSampleApp\obj\Debug\KinesisSampleApp.csprojResolveAssemblyReference.cache
