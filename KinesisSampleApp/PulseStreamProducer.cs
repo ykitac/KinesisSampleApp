@@ -10,7 +10,7 @@ using System.Threading;
 namespace KinesisSampleApp
 {
 	/// <summary>
-	/// This Class generates pulse Data.
+	/// Adds Kinesis records to the thread-safe collection.
 	/// </summary>
 	public class PulseStreamProducer
 	{
@@ -53,10 +53,9 @@ namespace KinesisSampleApp
 		#region >>> public methods <<<
 
 		/// <summary>
-		/// パルスストリームデータを生成して、送信待ちレコードのコレクションにデータを追加します。
-		/// トークンによる外部からのキャンセルが可能です。
+		/// Adds records to the collection that stores requests for put record.
 		/// </summary>
-		/// <param name="cancellationToken">キャンセルトークン</param>
+		/// <param name="cancellationToken">A cancellation token.</param>
 		public void Produce( CancellationToken cancellationToken )
 		{
 			// 送信待ちレコードがnullなら処理を抜ける。
@@ -70,7 +69,7 @@ namespace KinesisSampleApp
 			{
 				try
 				{
-					_records.Add( CreateRandomPulseRecord(), cancellationToken );
+					_records.Add( new MemoryStream( KinesisRecord.CreateRandomRecord( pid, uid, seq ).ToBytes() ), cancellationToken );
 				}
 				catch( OperationCanceledException e )
 				{
