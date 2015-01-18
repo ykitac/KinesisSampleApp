@@ -33,6 +33,11 @@ namespace KinesisSampleApp
 
 #if DEBUG
 		private const string RecordsListDisposed = "送信待ちレコードのコレクションが破棄または変更されたため、送信を中止しました。";
+		
+		/// <summary>
+		/// Describes the ID of the producer.
+		/// </summary>
+		private const int ProducerId = 1;
 #endif
 
 		#endregion
@@ -65,6 +70,9 @@ namespace KinesisSampleApp
 				return;
 			}
 
+			var pid = ProducerId;
+			
+			
 			while( true )
 			{
 				try
@@ -118,6 +126,19 @@ namespace KinesisSampleApp
 			return new MemoryStream( buffer.ToArray() );
 		}
 
+		#endregion
+		
+		#region >>> propaties <<<
+		
+		/// <summary>
+		/// Manages the sequence numbers of the Kinesis records.
+		/// </summary>
+		private ConcurrentDictionary<int, int> SequenceManager
+		{
+			get;
+			set;
+		}
+		
 		#endregion
 	}
 }
