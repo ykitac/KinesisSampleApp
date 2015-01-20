@@ -5,9 +5,12 @@ using System.Text;
 using System.IO;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Configuration;
 
+using Amazon;
 using Amazon.Kinesis;
 using Amazon.Kinesis.Model;
+using Amazon.Runtime;
 
 namespace KinesisSampleApp
 {
@@ -51,8 +54,7 @@ namespace KinesisSampleApp
 		public KinesisModel( BlockingCollection<MemoryStream> records )
 		{
 			_records = records;
-			Client = new AmazonKinesisClient();
-			Config = new AmazonKinesisConfig();
+			Client = AWSClientFactory.CreateAmazonKinesisClient( AppConfig.AccessKeyId, AppConfig.SecretAccesskey );
 		}
 
 		#endregion
@@ -80,7 +82,7 @@ namespace KinesisSampleApp
 					PutRecords();
 				}
 			}
-			catch( ObjectDisposedException e )
+			catch( ObjectDisposedException )
 			{
 				Debug.WriteLine( RecordsListDisposed );
 				// レコードのコレクションが破棄されていた場合は処理を抜ける。
@@ -162,21 +164,31 @@ namespace KinesisSampleApp
 		/// <param name="result">PutRecordsの結果</param>
 		private void PutRecordsCallBack( IAsyncResult result )
 		{
-			PutRecordsResponse re = Client.EndPutRecords( result );
-
-			// Putに失敗したレコードがあるか
-			if( re.FailedRecordCount > 0 )
+			try
 			{
-				// シーケンスナンバーが空のレコードリストを取得
-				var failedRecords = from x in re.Records
-						where String.IsNullOrEmpty( x.SequenceNumber )
-						select x;
-
-				foreach( var record in failedRecords )
+				var re = Client.EndPutRecords( result );
+				// Putに失敗したレコードがあるか
+				if( re.FailedRecordCount > 0 )
 				{
-					// エラー内容を調査するコードをここに追加する予定。
-					Debug.WriteLine( "{1}:{2}", new {record.ErrorCode, record.ErrorMessage} );
+					// シーケンスナンバーが空のレコードリストを取得
+					var failedRecords = from x in re.Records
+										where String.IsNullOrEmpty( x.SequenceNumber )
+										select x;
+
+					foreach( var record in failedRecords )
+					{
+						// エラー内容を調査するコードをここに追加する予定。
+						Debug.WriteLine( "{1}:{2}", new
+						{
+							record.ErrorCode,
+							record.ErrorMessage
+						} );
+					}
 				}
+			}
+			catch( AmazonKinesisException e )
+			{
+				Debug.WriteLine( e.Message );
 			}
 		}
 
@@ -187,16 +199,7 @@ namespace KinesisSampleApp
 		/// <summary>
 		/// AmazonKinesisのサービスにアクセスするクライアントオブジェクトを取得または設定します。
 		/// </summary>
-		private AmazonKinesisClient Client
-		{
-			get;
-			set;
-		}
-
-		/// <summary>
-		///
-		/// </summary>
-		private AmazonKinesisConfig Config
+		private IAmazonKinesis Client
 		{
 			get;
 			set;

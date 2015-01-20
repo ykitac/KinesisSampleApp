@@ -13,6 +13,11 @@ namespace KinesisSampleApp
 	{
 		#region >>> fields <<<
 
+		/// <summary>
+		/// A instance that manages the Kinesis operations.
+		/// </summary>
+		private KinesisOperationManager _kom;
+
 		#endregion
 
 		#region >>> constructors <<<
@@ -22,13 +27,51 @@ namespace KinesisSampleApp
 		/// </summary>
 		internal KinesisSampleAppViewModel()
 		{
-
+			_kom = new KinesisOperationManager();
 		}
 
 		#endregion
 
-		#region >>> properties <<<
+		#region >>> public methods <<<
+		
+		/// <summary>
+		/// The Command that starts the producer and the consumer threads.
+		/// </summary>
+		public void StartThreads()
+		{
+			_kom.Start();
+			using( StringWriter w = new StringWriter() )
+			{
+				w.WriteLine( "Amazon Kinesis にレコードを送信中です。" );
+				RaiseOutputEvent( w.GetStringBuilder() );
+			}
+		}
 
+		/// <summary>
+		/// The Command that stops the producer and the consumer threads.
+		/// </summary>
+		public void StopThreads()
+		{
+			_kom.Stop();
+		}
+
+		#endregion
+
+		#region >>> private methods <<<
+
+		private void RaiseOutputEvent( StringBuilder output )
+		{
+			var e = new OutputEventArgs();
+			e.Output = output;
+			Output( this, e );
+		}
+
+		#endregion
+
+		#region >>> events <<<
+
+		public event EventHandler<OutputEventArgs> Output;
+		
 		#endregion
 	}
 }

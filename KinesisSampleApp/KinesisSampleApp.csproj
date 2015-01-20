@@ -95,8 +95,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AppConfig.cs" />
     <Compile Include="KinesisOperationManager.cs" />
     <Compile Include="KinesisRecord.cs" />
+    <Compile Include="OutputEventArgs.cs" />
     <Compile Include="PulseStreamProducer.cs" />
     <Compile Include="KinesisModel.cs" />
     <Compile Include="KinesisSampleAppViewModel.cs" />

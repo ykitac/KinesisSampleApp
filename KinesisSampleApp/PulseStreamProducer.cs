@@ -38,6 +38,10 @@ namespace KinesisSampleApp
 		/// Describes the ID of the producer.
 		/// </summary>
 		private const int ProducerId = 1;
+
+		private const int UnitId = 1;
+
+		private const int SeqNum = 1;
 #endif
 
 		#endregion
@@ -70,8 +74,11 @@ namespace KinesisSampleApp
 				return;
 			}
 
+#if DEBUG
 			var pid = ProducerId;
-			
+			var uid = UnitId;
+			var seq = SeqNum;
+#endif	
 			
 			while( true )
 			{

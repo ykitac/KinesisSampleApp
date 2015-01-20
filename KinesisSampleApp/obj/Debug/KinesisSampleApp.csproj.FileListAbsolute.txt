@@ -1,2 +1,8 @@
 D:\github\KinesisSampleApp\KinesisSampleApp\bin\Debug\KinesisSampleApp.exe.config
 D:\github\KinesisSampleApp\KinesisSampleApp\obj\Debug\KinesisSampleApp.csprojResolveAssemblyReference.cache
+D:\github\KinesisSampleApp\KinesisSampleApp\bin\Debug\KinesisSampleApp.exe
+D:\github\KinesisSampleApp\KinesisSampleApp\bin\Debug\KinesisSampleApp.pdb
+D:\github\KinesisSampleApp\KinesisSampleApp\bin\Debug\AWSSDK.dll
+D:\github\KinesisSampleApp\KinesisSampleApp\bin\Debug\AWSSDK.xml
+D:\github\KinesisSampleApp\KinesisSampleApp\obj\Debug\KinesisSampleApp.exe
+D:\github\KinesisSampleApp\KinesisSampleApp\obj\Debug\KinesisSampleApp.pdb
