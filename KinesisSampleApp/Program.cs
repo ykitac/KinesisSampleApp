@@ -23,9 +23,8 @@ namespace KinesisSampleApp
 		public static void Main( string[] args )
 		{
 			Console.Write( GetServiceOutput() );
-			Console.Read();
-			
 			Initialize( args );
+
 			while( true )
 			{
 				ConsoleMessageLoop();
@@ -40,8 +39,6 @@ namespace KinesisSampleApp
 				sr.WriteLine( "===========================================" );
 				sr.WriteLine( "Welcome to the AWS .NET SDK!" );
 				sr.WriteLine( "===========================================" );
-
-				sr.WriteLine( "Press any key to continue..." );
 			}
 			return sb.ToString();
 		}
@@ -75,7 +72,7 @@ namespace KinesisSampleApp
 			StringBuilder sb = new StringBuilder( 1024 );
 			using( StringWriter sr = new StringWriter( sb ) )
 			{
-				sr.WriteLine( "Select A Menu." );
+				sr.WriteLine( "Select command." );
 				sr.WriteLine( "1.start" );
 				sr.WriteLine( "2.stop" );
 				sr.WriteLine( "3.exit" );

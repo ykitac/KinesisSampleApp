@@ -6,6 +6,7 @@ using System.IO;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Threading;
+using System.Runtime.Serialization.Json;
 
 namespace KinesisSampleApp
 {
@@ -82,9 +83,17 @@ namespace KinesisSampleApp
 			
 			while( true )
 			{
+				// Serializes a KinesisRecord object to a memory stream.
+				var mem = new MemoryStream();
+				var serializer = new DataContractJsonSerializer( typeof( KinesisRecord ) );
+
+				// Writes JSON data to the stream.
+				serializer.WriteObject( mem, KinesisRecord.CreateRandomRecord( pid, uid, seq ) );
+
 				try
 				{
-					_records.Add( new MemoryStream( KinesisRecord.CreateRandomRecord( pid, uid, seq ).ToBytes() ), cancellationToken );
+					// Adds the JSON data stream to the collection that stores requests for put record.
+					_records.Add( mem, cancellationToken );
 				}
 				catch( OperationCanceledException e )
 				{

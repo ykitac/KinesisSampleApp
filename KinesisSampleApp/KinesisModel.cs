@@ -26,7 +26,7 @@ namespace KinesisSampleApp
 		/// <summary>
 		/// 一度に送信する最大レコード数
 		/// </summary>
-		private const int MaxRecordsRequestSize = 1000;
+		private const int MaxRecordsRequestSize = 100;
 
 #if DEBUG
 		/// <summary>
@@ -54,7 +54,7 @@ namespace KinesisSampleApp
 		public KinesisModel( BlockingCollection<MemoryStream> records )
 		{
 			_records = records;
-			Client = AWSClientFactory.CreateAmazonKinesisClient( AppConfig.AccessKeyId, AppConfig.SecretAccesskey );
+			Client = new AmazonKinesisClient( AppConfig.AccessKeyId, AppConfig.SecretAccesskey, RegionEndpoint.APNortheast1 );
 		}
 
 		#endregion
@@ -136,6 +136,7 @@ namespace KinesisSampleApp
 					if( e is ObjectDisposedException
 						|| e is InvalidOperationException )
 					{
+						Debug.WriteLine( "=================================送信時の例外" );
 						Debug.WriteLine( RecordsListDisposed );
 						break;
 					}
@@ -178,17 +179,15 @@ namespace KinesisSampleApp
 					foreach( var record in failedRecords )
 					{
 						// エラー内容を調査するコードをここに追加する予定。
-						Debug.WriteLine( "{1}:{2}", new
-						{
-							record.ErrorCode,
-							record.ErrorMessage
-						} );
+						Debug.WriteLine( "{0}:{1}",record.ErrorCode, record.ErrorMessage );
 					}
 				}
 			}
 			catch( AmazonKinesisException e )
 			{
+				Debug.WriteLine( "コールバックメソッドでの例外" );
 				Debug.WriteLine( e.Message );
+				Debug.WriteLine( e.InnerException.Message );
 			}
 		}
 
@@ -199,7 +198,7 @@ namespace KinesisSampleApp
 		/// <summary>
 		/// AmazonKinesisのサービスにアクセスするクライアントオブジェクトを取得または設定します。
 		/// </summary>
-		private IAmazonKinesis Client
+		private AmazonKinesisClient Client
 		{
 			get;
 			set;

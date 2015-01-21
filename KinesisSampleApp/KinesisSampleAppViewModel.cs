@@ -40,7 +40,7 @@ namespace KinesisSampleApp
 		public void StartThreads()
 		{
 			_kom.Start();
-			using( StringWriter w = new StringWriter() )
+			using( var w = new StringWriter() )
 			{
 				w.WriteLine( "Amazon Kinesis にレコードを送信中です。" );
 				RaiseOutputEvent( w.GetStringBuilder() );
@@ -53,6 +53,11 @@ namespace KinesisSampleApp
 		public void StopThreads()
 		{
 			_kom.Stop();
+			using( var w = new StringWriter() )
+			{
+				w.WriteLine( "Amazon Kinesis へのレコード送信を停止します。" );
+				RaiseOutputEvent( w.GetStringBuilder() );
+			}
 		}
 
 		#endregion

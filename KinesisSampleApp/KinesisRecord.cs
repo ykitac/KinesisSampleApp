@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Diagnostics;
+using System.Runtime.Serialization;
 
 namespace KinesisSampleApp
 {
 	/// <summary>
 	/// Describes a Record to be put to the Kinesis.
 	/// </summary>
+	[DataContract]
 	public class KinesisRecord
 	{
 		#region >>> fields <<<
@@ -97,6 +99,7 @@ namespace KinesisSampleApp
 		/// <summary>
 		/// Gets and Sets the Kinesis Producer's ID.
 		/// </summary>
+		[DataMember(Name="ProducerId")]
 		public int ProducerId
 		{
 			get;
@@ -106,6 +109,7 @@ namespace KinesisSampleApp
 		/// <summary>
 		/// Gets and Sets the Unit's ID.
 		/// </summary>
+		[DataMember(Name="UnitId")]
 		public int UnitId
 		{
 			get;
@@ -115,6 +119,7 @@ namespace KinesisSampleApp
 		/// <summary>
 		/// Gets and Sets the SequenceNumber of the Kinesis Record.
 		/// </summary>
+		[DataMember(Name="SequenceNumber")]
 		public int SequenceNumber
 		{
 			get;
@@ -124,6 +129,7 @@ namespace KinesisSampleApp
 		/// <summary>
 		/// Gets and Sets the time when the Kinesis record is generated.
 		/// </summary>
+		[DataMember(Name="Time")]
 		public DateTime Time
 		{
 			get;
@@ -133,6 +139,7 @@ namespace KinesisSampleApp
 		/// <summary>
 		/// Gets and Sets the PulseData.
 		/// </summary>
+		[DataMember(Name="PulseData")]
 		public byte[] PulseData
 		{
 			get;
