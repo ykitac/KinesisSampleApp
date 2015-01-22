@@ -135,6 +135,8 @@ namespace KinesisSampleApp
 
 		private void InitializeSequence()
 		{
+			SequenceManager = SequenceManager ?? new ConcurrentDictionary<int, int>();
+
 			for( int i = 1; i <= NumberOfUnit; i++ )
 			{
 				// Initializes sequence number.
