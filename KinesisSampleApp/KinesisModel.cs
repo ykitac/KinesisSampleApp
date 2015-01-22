@@ -6,6 +6,7 @@ using System.IO;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Configuration;
+using System.Threading;
 
 using Amazon;
 using Amazon.Kinesis;
@@ -26,7 +27,7 @@ namespace KinesisSampleApp
 		/// <summary>
 		/// 一度に送信する最大レコード数
 		/// </summary>
-		private const int MaxRecordsRequestSize = 100;
+		private const int MaxRecordsRequestSize = 500;
 		
 		/// <summary>
 		/// Name of the Kinesis stream.
@@ -38,6 +39,10 @@ namespace KinesisSampleApp
 		/// </summary>
 		private const string RecordsListDisposed = "送信待ちレコードのコレクションが破棄または変更されたため、送信を中止しました。";
 
+		/// <summary>
+		/// Time interval to call PutRecords method.
+		/// </summary>
+		private const int PutRecordsInterval = 1000;
 		#endregion
 
 		#region >>> コンストラクター <<<
@@ -75,6 +80,7 @@ namespace KinesisSampleApp
 				while( !_records.IsCompleted )
 				{
 					PutRecords();
+					Thread.Sleep( PutRecordsInterval );
 				}
 			}
 			catch( ObjectDisposedException )

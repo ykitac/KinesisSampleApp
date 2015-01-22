@@ -28,11 +28,6 @@ namespace KinesisSampleApp
 		private readonly BlockingCollection<PutRecordsRequestEntry> _records;
 
 		/// <summary>
-		/// Describes the max size of one record.
-		/// </summary>
-		private const int MaxDataSize = 5000000;
-
-		/// <summary>
 		/// PartitionKey format.
 		/// </summary>
 		private const string PartitionKey = "00000-00000-#####";
