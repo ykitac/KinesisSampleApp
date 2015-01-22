@@ -8,6 +8,11 @@ using System.Diagnostics;
 using System.Threading;
 using System.Runtime.Serialization.Json;
 
+using Amazon;
+using Amazon.Kinesis;
+using Amazon.Kinesis.Model;
+using Amazon.Runtime;
+
 namespace KinesisSampleApp
 {
 	/// <summary>
@@ -20,7 +25,7 @@ namespace KinesisSampleApp
 		/// <summary>
 		/// A thread safe collection which stores generated data.
 		/// </summary>
-		private readonly BlockingCollection<MemoryStream> _records;
+		private readonly BlockingCollection<PutRecordsRequestEntry> _records;
 
 		/// <summary>
 		/// Describes the max size of one record.
@@ -28,22 +33,21 @@ namespace KinesisSampleApp
 		private const int MaxDataSize = 5000000;
 
 		/// <summary>
-		/// Describes the default number of ports.
+		/// PartitionKey format.
 		/// </summary>
-		private const int NumberOfPorts = 12;
+		private const string PartitionKey = "00000-00000-#####";
 
-#if DEBUG
-		private const string RecordsListDisposed = "送信待ちレコードのコレクションが破棄または変更されたため、送信を中止しました。";
-		
 		/// <summary>
-		/// Describes the ID of the producer.
+		/// An error message that is displayed if the list of records is disposed.
 		/// </summary>
-		private const int ProducerId = 1;
+		private const string RecordsListDisposed = "送信待ちレコードのコレクションが破棄または変更されたため、送信を中止しました。";
 
-		private const int UnitId = 1;
+		/// <summary>
+		/// Describes the number of units that sends pulse data.
+		/// </summary>
+		private const int NumberOfUnit = 500;
 
-		private const int SeqNum = 1;
-#endif
+		private const int StartSequenceNumber = 1;
 
 		#endregion
 
@@ -53,9 +57,10 @@ namespace KinesisSampleApp
 		/// Initializes a new instance of the PulseStreamProducer class with the specified reference set to collection which stored generated data.
 		/// </summary>
 		/// <param name="records">Reference set to collection which stored generated data.</param>
-		public PulseStreamProducer( BlockingCollection<MemoryStream> records )
+		public PulseStreamProducer( BlockingCollection<PutRecordsRequestEntry> records )
 		{
 			_records = records;
+			InitializeSequence();
 		}
 
 		#endregion
@@ -75,25 +80,33 @@ namespace KinesisSampleApp
 				return;
 			}
 
-#if DEBUG
-			var pid = ProducerId;
-			var uid = UnitId;
-			var seq = SeqNum;
-#endif	
+			var pid = AppConfig.ProducerId;
+			var random = new Random();
 			
 			while( true )
 			{
+				var uid = random.Next( NumberOfUnit );
+				int seq;
+				if( !SequenceManager.TryGetValue( uid, out seq ) )
+				{
+					continue;
+				}
+
 				// Serializes a KinesisRecord object to a memory stream.
 				var mem = new MemoryStream();
-				var serializer = new DataContractJsonSerializer( typeof( KinesisRecord ) );
+				var serializer = new DataContractJsonSerializer( typeof( KinesisRecord ) );				
 
 				// Writes JSON data to the stream.
 				serializer.WriteObject( mem, KinesisRecord.CreateRandomRecord( pid, uid, seq ) );
 
+				var entry = new PutRecordsRequestEntry();
+				entry.Data = mem;
+				entry.PartitionKey = uid.ToString( PartitionKey );
+
 				try
 				{
 					// Adds the JSON data stream to the collection that stores requests for put record.
-					_records.Add( mem, cancellationToken );
+					_records.Add( entry, cancellationToken );
 				}
 				catch( OperationCanceledException e )
 				{
@@ -120,32 +133,19 @@ namespace KinesisSampleApp
 
 		#region >>> private methods <<<
 
-		/// <summary>
-		/// 乱数によりレコードを生成します。
-		/// </summary>
-		/// <returns>乱数により生成したレコード</returns>
-		private MemoryStream CreateRandomPulseRecord()
+		private void InitializeSequence()
 		{
-			var buffer = new List<Byte>();
-
-			// 現在時刻を表すバイト配列を追加
-			buffer.AddRange( BitConverter.GetBytes( DateTime.Now.ToBinary() ) );
-
-			var r = new Random();
-
-			// パルスの入力ポート数分繰り返す。
-			for( int i = 0; i < NumberOfPorts; i++ )
+			for( int i = 1; i <= NumberOfUnit; i++ )
 			{
-				buffer.AddRange( BitConverter.GetBytes( r.Next() ) ); 
+				// Initializes sequence number.
+				SequenceManager.AddOrUpdate( i, StartSequenceNumber, ( x, y ) => StartSequenceNumber );
 			}
-
-			return new MemoryStream( buffer.ToArray() );
 		}
 
 		#endregion
-		
+
 		#region >>> propaties <<<
-		
+
 		/// <summary>
 		/// Manages the sequence numbers of the Kinesis records.
 		/// </summary>

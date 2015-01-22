@@ -21,27 +21,22 @@ namespace KinesisSampleApp
 		/// <summary>
 		/// Kinesisに送信するレコードのスレッドセーフなコレクション
 		/// </summary>
-		private readonly BlockingCollection<MemoryStream> _records;
+		private readonly BlockingCollection<PutRecordsRequestEntry> _records;
 
 		/// <summary>
 		/// 一度に送信する最大レコード数
 		/// </summary>
 		private const int MaxRecordsRequestSize = 100;
-
-#if DEBUG
-		/// <summary>
-		/// DEBUG用PartitionKey
-		/// </summary>
-		private const string PartitionKey = "00000-00000-00000";
 		
 		/// <summary>
-		/// DEBUG用StreamName
+		/// Name of the Kinesis stream.
 		/// </summary>
 		private const string StreamName = "TEST";
 
-
+		/// <summary>
+		/// An error message that is displayed if the records list is disposed.
+		/// </summary>
 		private const string RecordsListDisposed = "送信待ちレコードのコレクションが破棄または変更されたため、送信を中止しました。";
-#endif
 
 		#endregion
 
@@ -51,7 +46,7 @@ namespace KinesisSampleApp
 		/// Amazon Kinesis上の処理を行うKinesisModelのインスタンスを生成します。
 		/// </summary>
 		/// <param name="records">Kinesisに送信するレコードのコレクションを指定します。</param>
-		public KinesisModel( BlockingCollection<MemoryStream> records )
+		public KinesisModel( BlockingCollection<PutRecordsRequestEntry> records )
 		{
 			_records = records;
 			Client = new AmazonKinesisClient( AppConfig.AccessKeyId, AppConfig.SecretAccesskey, RegionEndpoint.APNortheast1 );
@@ -110,17 +105,13 @@ namespace KinesisSampleApp
 			while( loopcnt < MaxRecordsRequestSize )
 			{
 				PutRecordsRequestEntry entry;
-				MemoryStream mem;
 				
 				// Producerがレコードを追加したコレクションから、レコードの取得を試みる。
 				// Timeoutは仮で1000msだが後にパラメーター化する。
 				try
 				{
-					if( _records.TryTake( out mem, 1000 ) )
+					if( _records.TryTake( out entry, 1000 ) )
 					{
-						entry = new PutRecordsRequestEntry();
-						entry.Data = mem;
-						entry.PartitionKey = PartitionKey;
 						req.Records.Add( entry );
 						loopcnt++;
 					}

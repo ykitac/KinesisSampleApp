@@ -6,6 +6,11 @@ using System.Collections.Concurrent;
 using System.IO;
 using System.Threading;
 
+using Amazon;
+using Amazon.Kinesis;
+using Amazon.Kinesis.Model;
+using Amazon.Runtime;
+
 namespace KinesisSampleApp
 {
 	public sealed class KinesisOperationManager
@@ -15,7 +20,7 @@ namespace KinesisSampleApp
 		/// <summary>
 		/// A thread-safe collection that stores the records to be sent to the Kinesis.
 		/// </summary>
-		private readonly BlockingCollection<MemoryStream> _records;
+		private readonly BlockingCollection<PutRecordsRequestEntry> _records;
 
 		/// <summary>
 		/// An instance of the class that sends the records to the Kinesis.
@@ -52,7 +57,7 @@ namespace KinesisSampleApp
 		public KinesisOperationManager()
 		{
 			// Initializes the "_records" field.
-			_records = new BlockingCollection<MemoryStream>( CollectionCapacity );
+			_records = new BlockingCollection<PutRecordsRequestEntry>( CollectionCapacity );
 
 			_producer = null;
 			_consumer = null;

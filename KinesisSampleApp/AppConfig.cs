@@ -13,9 +13,13 @@ namespace KinesisSampleApp
 	{
 		private static string _accesskeyId;
 		private static string _secretAccesskey;
+		private static int _producerId;
 
 		private const string AccessKeyIdConfigName = "AccesskeyId";
 		private const string SecretAccessKeyConfigName = "SecretAccessKey";
+		private const string ProduceIdConfigName = "ProducerId";
+
+
 
 		static AppConfig()
 		{
@@ -26,6 +30,23 @@ namespace KinesisSampleApp
 		{
 			_accesskeyId = ConfigurationManager.AppSettings[AccessKeyIdConfigName];
 			_secretAccesskey = ConfigurationManager.AppSettings[SecretAccessKeyConfigName];
+
+			try
+			{
+				_producerId = Convert.ToInt32( ConfigurationManager.AppSettings[ProduceIdConfigName] );
+			}
+			catch( Exception e )
+			{
+				if( e is FormatException || e is OverflowException )
+				{
+					// Sets default to _producerId.
+					_producerId = 1;
+				}
+				else
+				{
+					throw e;
+				}
+			}
 		}
 
 		/// <summary>
@@ -47,6 +68,17 @@ namespace KinesisSampleApp
 			get
 			{
 				return _secretAccesskey;
+			}
+		}
+
+		/// <summary>
+		/// Gets the Producer Id.
+		/// </summary>
+		public static int  ProducerId
+		{
+			get
+			{
+				return _producerId;
 			}
 		}
 	}
